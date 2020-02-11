@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ModelName:
+    Description: The name of the model
+    Type: String
+  ModelDataUrl:
+    Description: The location of model artifacts after the training
+    Type: String
+  TrainingImage:
+    Description: The container that was used to train the model
+    Type: String
+  InstanceType:
+    Description: Instance type for the endpoint
+    Type: String
+    Default: ml.m4.xlarge
+  InstanceCount:
+    Description: Number of instances
+    Type: String
+    Default: 1
+  RoleArn:
+    Description: Execution role 
+    Type: String
+
+Resources:
+  Model:
+    Type: AWS::SageMaker::Model
+    Properties:
+      Containers:
+        - Image: !Ref TrainingImage
+          ModelDataUrl: !Ref ModelDataUrl
+          Environment: >
+            '{"SAGEMAKER_PROGRAM": "/serve/predict.py",
+            "SAGEMAKER_SUBMIT_DIRECTORY": "s3://sagemaker-eu-central-1-170707408894/sagemaker-pytorch-2020-02-07-15-33-48-415/sourcedir.tar.gz" 
+            }'
+      ExecutionRoleArn: !Ref RoleArn
+      ModelName: !Ref ModelName
+
+  Endpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+
+  EndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      ProductionVariants:
+        - ModelName: !GetAtt Model.ModelName
+          VariantName: variant-1
+          InitialInstanceCount: !Ref InstanceCount
+          InitialVariantWeight: 1.0
+          InstanceType: !Ref InstanceType
+
+Outputs:
+  EndpointId:
+    Value: !Ref Endpoint
+  EndpointName:
+    Value: !GetAtt Endpoint.EndpointName

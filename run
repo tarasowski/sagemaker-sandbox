@@ -1,0 +1,34 @@
+#!/bin/sh
+#Author: Dimitri Tarasowski
+
+TRAINING_JOB_NAME=sagemaker-pytorch-2020-02-11-13-02-00-851
+days=$(date +%Y%m%d%H%M)
+STACK_NAME=pytorch-customer-satisfaction-
+STACK_NAME+=$days
+
+if [[ "$1" == "download" ]]
+then
+  curl http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz --output ./input/aclImdb_v1.tar.gz
+  tar -zxf ./input/aclImdb_v1.tar.gz -C ./input/
+  rm -rf ./input/aclImdb_v1.tar.gz
+fi
+
+if [[ "$1" == "preprocess" ]]
+then
+  DICT_DIR=./input CACHE_DIR=./input DATA_DIR=./input/aclImdb python3 ./src/preprocess/preprocess.py
+fi
+
+if [[ "$1" == "train-local" ]]
+then
+  ENV=local INPUT_DATA=file://input/ python3 jobsubmit.py
+fi
+
+if [[ "$1" == "train-cloud" ]]
+then
+  ENV=cloud python3 jobsubmit.py
+fi
+
+if [[ "$1" == "deploy" ]]
+then
+   TRAINING_JOB_NAME=$TRAINING_JOB_NAME STACK_NAME=$STACK_NAME python3 ./infrastructure/app/build-stack.py
+fi
