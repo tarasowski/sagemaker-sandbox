@@ -1,7 +1,6 @@
 #!/bin/sh
 #Author: Dimitri Tarasowski
 
-TRAINING_JOB_NAME=sagemaker-pytorch-2020-02-11-13-02-00-851
 days=$(date +%Y%m%d%H%M)
 STACK_NAME=pytorch-customer-satisfaction-
 STACK_NAME+=$days
@@ -30,5 +29,12 @@ fi
 
 if [[ "$1" == "deploy" ]]
 then
-   TRAINING_JOB_NAME=$TRAINING_JOB_NAME STACK_NAME=$STACK_NAME python3 ./infrastructure/app/build-stack.py
+  if [[ $# -gt 1 ]]
+  then 
+    TRAINING_JOB_NAME=$2
+    aws cloudformation validate-template --template-body file://infrastructure/app/template.yaml
+    TRAINING_JOB_NAME=$TRAINING_JOB_NAME STACK_NAME=$STACK_NAME python3 ./infrastructure/app/build-stack.py
+  else
+    echo Please provide as the second argument the training job name
+  fi
 fi

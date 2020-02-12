@@ -17,20 +17,17 @@ if ENV == 'local':
     prefix = 'sagemaker/sentiment_rnn'
     role = 'SageMakerRole'
     input_data = session.upload_data(path='./input', bucket=bucket, key_prefix=prefix)
-    code_data = session.upload_data(path='./src', bucket=bucket, key_prefix=code_prefix)
     estimator = PyTorch(entry_point='/train.py',
             source_dir='./src/train',
             role=role,
             framework_version='0.4.0',
             train_instance_type='local',
             train_instance_count=1,
-            code_location=code_data,
             hyperparameters = {
                     'epochs': 5,
                     'hidden_dim': 200
                     })
 
-    # Run model training job
     estimator.fit({'training': input_data})
 
 if ENV == 'cloud':
@@ -39,8 +36,8 @@ if ENV == 'cloud':
     prefix = 'sagemaker/sentiment_rnn'
     role = 'SageMakerRole'
     input_data = session.upload_data(path='./input', bucket=bucket, key_prefix=prefix)
-    estimator = PyTorch(entry_point='./train/train.py',
-            source_dir='./src',
+    estimator = PyTorch(entry_point='train.py',
+            source_dir='./src/train_predict/',
             role=role,
             framework_version='0.4.0',
             train_instance_count=1,
@@ -50,5 +47,5 @@ if ENV == 'cloud':
                     'hidden_dim': 200
                     })
 
-    # Run model training job
     estimator.fit({'training': input_data})
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -d 'Hello' -X POST https://oylwznc393.execute-api.eu-central-1.amazonaws.com/dev/predict

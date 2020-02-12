@@ -21,18 +21,18 @@ Parameters:
   RoleArn:
     Description: Execution role 
     Type: String
+  InferenceCode:
+    Description: The location of the inference code
+    Type: String
 
 Resources:
   Model:
     Type: AWS::SageMaker::Model
     Properties:
-      Containers:
-        - Image: !Ref TrainingImage
-          ModelDataUrl: !Ref ModelDataUrl
-          Environment: >
-            '{"SAGEMAKER_PROGRAM": "/serve/predict.py",
-            "SAGEMAKER_SUBMIT_DIRECTORY": "s3://sagemaker-eu-central-1-170707408894/sagemaker-pytorch-2020-02-07-15-33-48-415/sourcedir.tar.gz" 
-            }'
+      PrimaryContainer:
+        Image: !Ref TrainingImage
+        ModelDataUrl: !Ref ModelDataUrl
+        Environment:  {"SAGEMAKER_PROGRAM": "predict.py","SAGEMAKER_ENABLE_CLOUDWATCH_METRICS": false,"SAGEMAKER_REGION": {"Ref": "AWS::Region"},"SAGEMAKER_CONTAINER_LOG_LEVEL": "20","SAGEMAKER_SUBMIT_DIRECTORY": {"Ref": "InferenceCode"}}
       ExecutionRoleArn: !Ref RoleArn
       ModelName: !Ref ModelName
 
