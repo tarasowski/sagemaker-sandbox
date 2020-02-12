@@ -1,11 +1,11 @@
 import boto3
 import os
 
-ENDPOINT = os.environ['ENDPOINT']
+ENDPOINT_NAME = os.environ['ENDPOINT_NAME']
 
-def lambda_handler(event, context):
+def handler(event, context):
     runtime = boto3.Session().client('sagemaker-runtime')
-    response = runtime.invoke_endpoint(EndpointName = ENDPOINT, 
+    response = runtime.invoke_endpoint(EndpointName = ENDPOINT_NAME, 
             ContentType = 'text/plain',                 
             Body = event['body'])                      
 

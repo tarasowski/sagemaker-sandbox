@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Proxy API for sagemaker endpoint
+
+Resources:
+  SMAPI:
+    Type: AWS::Serverless::HttpApi
+
+  ProxyFunction: 
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.8
+      MemorySize: 128
+      Timeout: 5
+      ReservedConcurrentExecutions: 5
+      Handler: main.handler
+      CodeUri: ../../src/proxy
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - sagemaker:InvokeEndpoint
+              Resource: '*' # add stricter resource level restriction if needed
+      Environment:
+        Variables:
+          ENDPOINT_NAME: 
+            Fn::Sub: '{{resolve:ssm:/applications/cs-sagemaker/endpoints/name:1}}'
+      Events:
+        SMAPI:
+          Type: HttpApi
+          Properties:
+            Path: /predict
+            Method: POST

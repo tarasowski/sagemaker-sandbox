@@ -21,10 +21,11 @@ def get_job(training_job_name):
 
 cfn = boto3.client('cloudformation')
 
-with open(dir_path + '/template.yaml', 'r') as f:
+with open(dir_path + '/output.yaml', 'r') as f:
     _, role_arn, model_data_url, training_image, inference_code = get_job(TRAINING_JOB_NAME)
     stack = cfn.create_stack(StackName=STACK_NAME,
             TemplateBody = f.read(),
+            Capabilities = ['CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'],
             Parameters=[
                     {'ParameterKey':'ModelName', 'ParameterValue': TRAINING_JOB_NAME},
                     {'ParameterKey':'TrainingImage', 'ParameterValue': training_image},

@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: Main template for bootstrapping the endpoint and API 
-
+Description: Main template for bootstrapping the endpoint and API
 Parameters:
   ModelName:
     Description: The name of the model
@@ -21,17 +20,16 @@ Parameters:
     Type: String
     Default: 1
   RoleArn:
-    Description: Execution role 
+    Description: Execution role
     Type: String
   InferenceCode:
     Description: The location of the inference code
     Type: String
-
 Resources:
   Sagemaker:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./sagemaker.template.yaml
+      Location: https://s3.eu-central-1.amazonaws.com/tarasowski-local-cs-sagemaker/c8112534d5ae7477493b8df548f1c272.template
       Parameters:
         ModelName:
           Ref: ModelName
@@ -47,10 +45,8 @@ Resources:
           Ref: RoleArn
         InferenceCode:
           Ref: InferenceCode
-
   API:
     Type: AWS::Serverless::Application
     DependsOn: Sagemaker
     Properties:
-      Location: ./api.template.yaml
-
+      Location: https://s3.eu-central-1.amazonaws.com/tarasowski-local-cs-sagemaker/37b90e2e379b1aaf7e573b6ff0adc21d.template
